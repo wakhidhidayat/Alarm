@@ -9,8 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import javax.swing.DefaultListModel;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
@@ -19,6 +22,9 @@ import javazoom.jl.player.Player;
  * @author user
  */
 public class alarm extends javax.swing.JFrame {
+    Playlist pl = new Playlist();
+    
+    ArrayList updateList = new ArrayList();
 
     private static String filename;
     private static Player player;
@@ -28,6 +34,32 @@ public class alarm extends javax.swing.JFrame {
     public alarm() {
         initComponents();
         alarmmusik();
+    }
+    
+    void updateList() {
+        updateList = pl.getListSong();
+        DefaultListModel model = new DefaultListModel();
+        for(int i=0; i<updateList.size(); i++) {
+            int j=i+1;
+            model.add(i, ((File) updateList.get(i)).getName());
+        }
+        playlist.setModel(model);
+    }
+    
+    void add() {
+        pl.add(this);
+        pl.fc.setMultiSelectionEnabled(true);
+        updateList();
+    }
+    
+    void remove() {
+       try{
+        int akandihapus = playlist.getLeadSelectionIndex();
+        pl.ls.remove(akandihapus);
+        updateList();
+        }catch(Exception e){
+
+        } 
     }
     
     private void playlagu(){
@@ -128,12 +160,11 @@ public class alarm extends javax.swing.JFrame {
         cbjam = new javax.swing.JComboBox<>();
         cbmenit = new javax.swing.JComboBox<>();
         cbdetik = new javax.swing.JComboBox<>();
-        lagu1 = new javax.swing.JRadioButton();
-        lag4 = new javax.swing.JRadioButton();
-        lagu2 = new javax.swing.JRadioButton();
-        lagu3 = new javax.swing.JRadioButton();
         jLabel3 = new javax.swing.JLabel();
         lberror = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        playlist = new javax.swing.JList<>();
+        jButton2 = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -249,44 +280,26 @@ public class alarm extends javax.swing.JFrame {
 
         cbdetik.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59" }));
 
-        buttonGroup1.add(lagu1);
-        lagu1.setText("Ed Sheeran - Photograph");
-        lagu1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lagu1ActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(lag4);
-        lag4.setText("Marshmello - Alone");
-        lag4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lag4ActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(lagu2);
-        lagu2.setText("The Script - Superheroes");
-        lagu2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lagu2ActionPerformed(evt);
-            }
-        });
-
-        buttonGroup1.add(lagu3);
-        lagu3.setText("Alan Walker - Faded");
-        lagu3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lagu3ActionPerformed(evt);
-            }
-        });
-
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("Pilih Lagu :");
 
         lberror.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         lberror.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        playlist.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                playlistMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(playlist);
+
+        jButton2.setText("Browse..");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -322,13 +335,14 @@ public class alarm extends javax.swing.JFrame {
                                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addComponent(btstop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btntunda, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(42, 42, 42)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lagu1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lag4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lagu3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lagu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(42, 42, 42)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 23, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(133, 133, 133)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -346,12 +360,17 @@ public class alarm extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(55, 55, 55)
                         .addComponent(waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(303, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(20, 20, 20)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(28, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -369,13 +388,13 @@ public class alarm extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel8))
+                .addGap(2, 2, 2)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel8))
-                        .addGap(2, 2, 2)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(cbjam, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cbmenit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -385,22 +404,20 @@ public class alarm extends javax.swing.JFrame {
                             .addComponent(submit)
                             .addComponent(reset))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btstop, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lagu1)
+                        .addComponent(btstop, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lagu2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lagu3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lag4)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btntunda)
+                        .addComponent(btntunda))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(24, 24, 24)
                 .addComponent(lberror, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbltanda, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(38, 38, 38))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(334, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(117, 117, 117)))
         );
 
         pack();
@@ -473,30 +490,6 @@ public class alarm extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btstopActionPerformed
 
-    private void lag4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lag4ActionPerformed
-        // TODO add your handling code here:
-        filename = "musik/Marshmello - Alone.mp3";
-               
-    }//GEN-LAST:event_lag4ActionPerformed
-
-    private void lagu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lagu1ActionPerformed
-        // TODO add your handling code here:
-        filename = "musik/Ed Sheeran - Photograph.mp3";
-
-    }//GEN-LAST:event_lagu1ActionPerformed
-
-    private void lagu2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lagu2ActionPerformed
-        // TODO add your handling code here:
-        filename = "musik/The Script - Superheroes.mp3";
-
-    }//GEN-LAST:event_lagu2ActionPerformed
-
-    private void lagu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lagu3ActionPerformed
-        // TODO add your handling code here:
-        filename = "musik/Alan Walker - Faded.mp3";
-
-    }//GEN-LAST:event_lagu3ActionPerformed
-
     private void cbjamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbjamActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbjamActionPerformed
@@ -558,6 +551,14 @@ public class alarm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cbmenitActionPerformed
 
+    private void playlistMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playlistMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_playlistMouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -600,6 +601,7 @@ public class alarm extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbdetik;
     private javax.swing.JComboBox<String> cbjam;
     private javax.swing.JComboBox<String> cbmenit;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -610,15 +612,13 @@ public class alarm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JRadioButton lag4;
-    private javax.swing.JRadioButton lagu1;
-    private javax.swing.JRadioButton lagu2;
-    private javax.swing.JRadioButton lagu3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbdetik;
     private javax.swing.JLabel lberror;
     private javax.swing.JLabel lbjam;
     private javax.swing.JLabel lbltanda;
     private javax.swing.JLabel lbmenit;
+    private javax.swing.JList<String> playlist;
     private javax.swing.JButton reset;
     private javax.swing.JButton submit;
     private javax.swing.JLabel waktu;
