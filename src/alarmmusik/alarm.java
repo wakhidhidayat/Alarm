@@ -66,7 +66,7 @@ public class alarm extends javax.swing.JFrame {
         try {
             
             if(filename==null){
-            filename="musik/Marshmello - Alone.mp3";
+            filename="";
             }
      FileInputStream lagu1 = new FileInputStream(filename);
      
