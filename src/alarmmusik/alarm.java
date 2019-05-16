@@ -13,7 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
@@ -26,7 +29,7 @@ public class alarm extends javax.swing.JFrame {
     
     ArrayList updateList = new ArrayList();
 
-    private static String filename;
+    private static File filename;
     private static Player player;
     /**
      * Creates new form alarm
@@ -52,44 +55,115 @@ public class alarm extends javax.swing.JFrame {
         updateList();
     }
     
-    void remove() {
-       try{
-        int akandihapus = playlist.getLeadSelectionIndex();
-        pl.ls.remove(akandihapus);
-        updateList();
-        }catch(Exception e){
-
-        } 
+    void tunda() {
+        if(player!=null){
+        player.close();
+        
+        btstop.setEnabled(false);
+        reset.setEnabled(true);
+        submit.setEnabled(false);
+        btntunda.setEnabled(true);
+            
+        lbltanda.setText(null);
+        lberror.setText("Alarm di tunda 5 menit");
+            
+        java.util.Date dateTime = new java.util.Date();
+        
+        int a, b, tunda , jam, menit;
+        a = dateTime.getMinutes();
+        b = dateTime.getHours();
+        tunda = a + 5;
+            if(tunda>59){
+                jam = b + 1;
+                menit = tunda - 60;
+                if(jam<=9){
+                    lbjam.setText("0"+ Integer.toString(jam));
+                }
+                else{
+                    lbjam.setText(Integer.toString(jam));
+                }
+                if(menit<=9){
+                    lbmenit.setText("0"+Integer.toString(menit));
+                }
+                else{
+                    lbmenit.setText(Integer.toString(menit));
+                }
+            }
+            else{
+                if(tunda<=9){
+                    lbmenit.setText("0"+Integer.toString(tunda));
+                }
+                else{
+                    lbmenit.setText(Integer.toString(tunda));
+                }
+                if(b<=9){
+                    lbjam.setText("0"+Integer.toString(b));
+                }
+                else{
+                    lbjam.setText(Integer.toString(b));
+                }
+                
+            }
+        }
     }
     
-    private void playlagu(){
-        try {
+    void playlagu(){
+        try {            
+            FileInputStream lagu1 = new FileInputStream(filename);
+
+            BufferedInputStream bis = new BufferedInputStream(lagu1);
             
-            if(filename==null){
-            filename="";
-            }
-     FileInputStream lagu1 = new FileInputStream(filename);
-     
-     BufferedInputStream bis = new BufferedInputStream(lagu1);
-     
             player = new Player(bis);
             
         }
         
        catch (FileNotFoundException | JavaLayerException e){
-      System.out.println("Problem playing file "+filename);
-            System.out.println(e);
+           System.out.print(e);
        } 
         new Thread(){
                 @Override
                 public void run(){
-                    try {player.play();
-                    
+                    try {
+                        player.play();
+                    } catch (JavaLayerException ex) {
+                        JOptionPane.showMessageDialog(null, "error");
                     }
-                catch (Exception e) {System.out.println(e);}
-                    
+                            
                 }
         }.start();
+    }
+    
+    static int a = 0;
+    
+    void select() {
+        if(a == 0) {
+            try{
+                int pl = playlist.getSelectedIndex();
+                filename = (File) this.updateList.get(pl);
+                FileInputStream fis = new FileInputStream(filename);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                player = new javazoom.jl.player.Player(bis);
+                a = 1;
+            }catch (Exception e) {
+                System.out.println("Problem");
+                System.out.println(e);
+            }
+            
+            new Thread() {
+                @Override
+                public void run() {
+                    try{
+                        player.play();
+                    }catch(Exception e) {
+                        
+                    }
+                }
+            }.start();
+        }else{
+            player.close();
+            a = 0;
+            select();
+        }
     }
     
     public final void alarmmusik(){
@@ -127,6 +201,57 @@ public class alarm extends javax.swing.JFrame {
             };
         };
         new Timer(1000, taskPerformer).start();
+    }
+    
+    void submit() {
+        
+        if(a == 1) {
+            player.close();
+            a = 0;
+        }
+        submit.setEnabled(false);
+        reset.setEnabled(true);
+        btstop.setEnabled(false);
+        btntunda.setEnabled(false);
+
+
+
+            String a = (String) cbjam.getSelectedItem();
+            String b = (String) cbmenit.getSelectedItem();
+            String c = (String) cbdetik.getSelectedItem();
+
+            lbjam.setText(a);
+            lbmenit.setText(b);
+            lbdetik.setText(c);
+
+            int pl = playlist.getSelectedIndex();
+            filename = (File) this.updateList.get(pl);
+
+            JOptionPane.showMessageDialog(this, "Alarm berhasil di aktifkan");        
+    }
+    
+    void reset() {
+        stop();
+        
+        reset.setEnabled(false);
+        submit.setEnabled(true);
+        btstop.setEnabled(false);
+        btntunda.setEnabled(false);
+
+            cbjam.setSelectedItem("00");
+            cbmenit.setSelectedItem("00");
+            cbdetik.setSelectedItem("00");
+
+
+            if(player != null){
+            player.close();
+            }        
+    }
+    
+    void stop() {
+        if(player != null){  
+        player.close(); 
+        }        
     }
 
     /**
@@ -337,12 +462,16 @@ public class alarm extends javax.swing.JFrame {
                                 .addComponent(btntunda, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(27, 27, 27)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGap(42, 42, 42)
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 23, Short.MAX_VALUE))))
+                                .addGap(0, 25, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(0, 0, Short.MAX_VALUE)
+                                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(133, 133, 133)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -361,11 +490,6 @@ public class alarm extends javax.swing.JFrame {
                         .addGap(55, 55, 55)
                         .addComponent(waktu, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(303, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(20, 20, 20)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -407,87 +531,30 @@ public class alarm extends javax.swing.JFrame {
                         .addComponent(btstop, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btntunda))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(24, 24, 24)
                 .addComponent(lberror, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbltanda, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(38, 38, 38))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(334, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(117, 117, 117)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitActionPerformed
-        // TODO add your handling code here:
-    submit.setEnabled(false);
-    reset.setEnabled(true);
-    btstop.setEnabled(false);
-    btntunda.setEnabled(false);
-
-
-
-        String a = (String) cbjam.getSelectedItem();
-        String b = (String) cbmenit.getSelectedItem();
-        String c = (String) cbdetik.getSelectedItem();
-
-        lbjam.setText(a);
-        lbmenit.setText(b);
-        lbdetik.setText(c);
-        
-        if(filename==null){
-            lberror.setText("Lupa memilih lagu, lagu default : Marshmello - Alone");
-        }
-
+        submit();
     }//GEN-LAST:event_submitActionPerformed
 
     private void resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetActionPerformed
-        // TODO add your handling code here:
-    reset.setEnabled(false);
-    submit.setEnabled(true);
-    btstop.setEnabled(false);
-    btntunda.setEnabled(false);
-
-        
-
-        lbjam.setText(null);
-        lbmenit.setText(null);
-        lbdetik.setText(null);
-        lbltanda.setText(null);
-        lberror.setText(null);
-        
-        cbjam.setSelectedItem("00");
-        cbmenit.setSelectedItem("00");
-        cbdetik.setSelectedItem("00");
-        
-        
-        if(player!=null){
-        player.close();
-        }
+        reset();
     }//GEN-LAST:event_resetActionPerformed
 
     private void btstopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btstopActionPerformed
-        // TODO add your handling code here:
-        if(player!=null){  
-        player.close(); 
-        
-        lbltanda.setText(null);
-        lberror.setText(null);
-        lbjam.setText(null);
-        lbmenit.setText(null);
-        lbdetik.setText(null);
-        
-        cbjam.setSelectedItem("00");
-        cbmenit.setSelectedItem("00");
-        cbdetik.setSelectedItem("00");
-        }
-            
-        
+        stop();
     }//GEN-LAST:event_btstopActionPerformed
 
     private void cbjamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbjamActionPerformed
@@ -496,55 +563,7 @@ public class alarm extends javax.swing.JFrame {
 
     private void btntundaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntundaActionPerformed
         // TODO add your handling code here:
-        if(player!=null){
-        player.close();
-        
-        btstop.setEnabled(false);
-        reset.setEnabled(true);
-        submit.setEnabled(false);
-        btntunda.setEnabled(true);
-            
-        lbltanda.setText(null);
-        lberror.setText("Alarm di tunda 5 menit");
-            
-        java.util.Date dateTime = new java.util.Date();
-        
-        int a, b, tunda , jam, menit;
-        a = dateTime.getMinutes();
-        b = dateTime.getHours();
-        tunda = a + 5;
-            if(tunda>59){
-                jam = b + 1;
-                menit = tunda - 60;
-                if(jam<=9){
-                    lbjam.setText("0"+ Integer.toString(jam));
-                }
-                else{
-                    lbjam.setText(Integer.toString(jam));
-                }
-                if(menit<=9){
-                    lbmenit.setText("0"+Integer.toString(menit));
-                }
-                else{
-                    lbmenit.setText(Integer.toString(menit));
-                }
-            }
-            else{
-                if(tunda<=9){
-                    lbmenit.setText("0"+Integer.toString(tunda));
-                }
-                else{
-                    lbmenit.setText(Integer.toString(tunda));
-                }
-                if(b<=9){
-                    lbjam.setText("0"+Integer.toString(b));
-                }
-                else{
-                    lbjam.setText(Integer.toString(b));
-                }
-                
-            }
-        }
+        tunda();
     }//GEN-LAST:event_btntundaActionPerformed
 
     private void cbmenitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbmenitActionPerformed
@@ -553,10 +572,11 @@ public class alarm extends javax.swing.JFrame {
 
     private void playlistMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playlistMouseClicked
         // TODO add your handling code here:
+        select();
     }//GEN-LAST:event_playlistMouseClicked
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        add();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
