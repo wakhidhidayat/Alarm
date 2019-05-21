@@ -58,13 +58,16 @@ public class alarm extends javax.swing.JFrame {
     void tunda() {
         if(player!=null){
         player.close();
+        a = 0;
         
         btstop.setEnabled(false);
         reset.setEnabled(true);
         submit.setEnabled(false);
-        btntunda.setEnabled(true);
+        btntunda.setEnabled(false);
+        jButton2.setEnabled(false);
             
         lbltanda.setText(null);
+        JOptionPane.showMessageDialog(this, "Alarm ditunda 5 menit");
         lberror.setText("Alarm di tunda 5 menit");
             
         java.util.Date dateTime = new java.util.Date();
@@ -117,7 +120,7 @@ public class alarm extends javax.swing.JFrame {
             
         }
         
-       catch (FileNotFoundException | JavaLayerException e){
+       catch (FileNotFoundException | JavaLayerException | ArrayIndexOutOfBoundsException e){
            System.out.print(e);
        } 
         new Thread(){
@@ -125,8 +128,8 @@ public class alarm extends javax.swing.JFrame {
                 public void run(){
                     try {
                         player.play();
-                    } catch (JavaLayerException ex) {
-                        JOptionPane.showMessageDialog(null, "error");
+                    } catch (JavaLayerException e) {
+                        System.out.println(e);
                     }
                             
                 }
@@ -144,10 +147,9 @@ public class alarm extends javax.swing.JFrame {
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 player = new javazoom.jl.player.Player(bis);
                 a = 1;
-            }catch (Exception e) {
-                System.out.println("Problem");
-                System.out.println(e);
-            }
+            } catch (FileNotFoundException | JavaLayerException | ArrayIndexOutOfBoundsException e){
+                System.out.print(e);
+              }
             
             new Thread() {
                 @Override
@@ -213,6 +215,7 @@ public class alarm extends javax.swing.JFrame {
         reset.setEnabled(true);
         btstop.setEnabled(false);
         btntunda.setEnabled(false);
+        playlist.setVisible(false);
 
 
 
@@ -223,34 +226,44 @@ public class alarm extends javax.swing.JFrame {
             lbjam.setText(a);
             lbmenit.setText(b);
             lbdetik.setText(c);
+            
+            try{
+                int pl = playlist.getSelectedIndex();
+                filename = (File) this.updateList.get(pl);
 
-            int pl = playlist.getSelectedIndex();
-            filename = (File) this.updateList.get(pl);
-
-            JOptionPane.showMessageDialog(this, "Alarm berhasil di aktifkan");        
+                JOptionPane.showMessageDialog(this, "Alarm berhasil di aktifkan");
+            } catch (ArrayIndexOutOfBoundsException e){
+                JOptionPane.showMessageDialog(this, "Pilih lagu terlebih dahulu!");
+                reset();
+                System.out.println(e);
+              }
+        
     }
     
     void reset() {
         stop();
         
-        reset.setEnabled(false);
+        reset.setEnabled(true);
         submit.setEnabled(true);
-        btstop.setEnabled(false);
-        btntunda.setEnabled(false);
+        btstop.setEnabled(true);
+        btntunda.setEnabled(true);
+        playlist.setVisible(true);
 
-            cbjam.setSelectedItem("00");
-            cbmenit.setSelectedItem("00");
-            cbdetik.setSelectedItem("00");
-
-
-            if(player != null){
-            player.close();
-            }        
+        cbjam.setSelectedItem("00");
+        cbmenit.setSelectedItem("00");
+        cbdetik.setSelectedItem("00");
+            
+        lberror.setText("");
+        
+        lbjam.setText("00");
+        lbmenit.setText("00");
+        lbdetik.setText("00");
     }
     
     void stop() {
         if(player != null){  
         player.close(); 
+        a = 0;
         }        
     }
 
